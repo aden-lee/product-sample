@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.productsample.repository.mapper.ProductMapper">
+
+    <insert id="insertProduct" parameterType="Product" useGeneratedKeys="true" keyProperty="pid" keyColumn="pid">
+        INSERT INTO PRODUCT (proName, proDesc, cid, created, updated)
+        VALUES (#{param.proName}, #{param.proDesc}, #{param.cid}, now(), now())
+    </insert>
+
+    <insert id="insertProductOption">
+        INSERT INTO PRODUCT_OPTION (
+        pid, size, qty, price
+        ) VALUES
+        <foreach item="option" collection="productOptions" separator=", ">
+            ( #{option.pid}, #{option.size}, #{option.qty}, #{option.price} )
+        </foreach>
+    </insert>
+
+    <select id="selectProductByProductName" resultType="Product">
+        SELECT * FROM PRODUCT WHERE proName=#{proName}
+    </select>
+
+    <select id="selectProductByPId" resultType="Product">
+        SELECT * FROM PRODUCT WHERE pid=#{pid}
+    </select>
+
+    <select id="selectProductOptionByPId" resultType="ProductOption">
+        SELECT * FROM PRODUCT_OPTION WHERE pid=#{pid}
+    </select>
+
+
+    <select id="selectProduct" resultType="Product">
+        SELECT
+            P.pid, P.proName, P.proDesc, P.cid, P.created, P.updated
+        FROM PRODUCT P
+        INNER JOIN PRODUCT_OPTION PO ON P.pid=PO.pid
+        <include refid="selectProductSearchOption"></include>
+        GROUP BY P.pid
+        ORDER BY P.created DESC
+        <if test="size != null">
+            LIMIT <if test="offset != null">#{offset},</if>#{size}
+        </if>
+    </select>
+
+    <select id="selectProductCount" resultType="int">
+        SELECT COUNT(*)
+        FROM (
+            SELECT
+            P.*
+            FROM PRODUCT P
+            INNER JOIN PRODUCT_OPTION PO ON P.pid=PO.pid
+            <include refid="selectProductSearchOption"></include>
+            GROUP BY P.pid
+        ) A
+    </select>
+
+    <sql id="selectProductSearchOption">
+        <where>
+            <if test="proName != null ">
+                OR proName LIKE CONCAT('%', #{proName}, '%')
+            </if>
+            <choose>
+                <when test="startCreated != null and endCreated != null ">
+                    <![CDATA[
+                    OR (
+                        FORMATDATETIME(created, 'yyyy-MM-dd') <= FORMATDATETIME(#{endCreated}, 'yyyy-MM-dd')
+                        AND FORMATDATETIME(created, 'yyyy-MM-dd') >= FORMATDATETIME(#{startCreated}, 'yyyy-MM-dd')
+                    )
+                    ]]>
+                </when>
+                <when test="startCreated != null">
+                    <![CDATA[
+                    OR FORMATDATETIME(created, 'yyyy-MM-dd') >= FORMATDATETIME(#{startCreated}, 'yyyy-MM-dd')
+                    ]]>
+                </when>
+            </choose>
+            <if test="qty != null ">
+                <![CDATA[
+                OR PO.qty >= #{qty}
+                ]]>
+            </if>
+            <if test="priceList != null ">
+
+                <choose>
+                    <when test="priceList != null and priceList.size() == 1">
+                    <![CDATA[
+                    OR (
+                        PO.price>=#{priceList[0]}
+                    )
+                    ]]>
+                    </when>
+                    <when test="priceList != null and priceList.size() == 2 and priceList[1] == 0">
+                    <![CDATA[
+                    OR (
+                        PO.price>=#{priceList[0]}
+                    )
+                    ]]>
+                    </when>
+                    <when test="priceList != null and priceList.size() == 2 and priceList[0] == 0">
+                    <![CDATA[
+                    OR (
+                        PO.price<=#{priceList[1]}
+                    )
+                    ]]>
+                    </when>
+                    <when test="priceList != null and priceList.size() == 2">
+                    <![CDATA[
+                    OR (
+                        PO.price>=#{priceList[0]} AND PO.price<=#{priceList[1]}
+                    )
+                    ]]>
+                    </when>
+                </choose>
+
+            </if>
+        </where>
+    </sql>
+</mapper>

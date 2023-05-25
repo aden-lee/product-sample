@@ -1,0 +1,49 @@
+server:
+  port: ${port:10081}
+  error:
+    whitelabel:
+      enabled: false
+
+spring:
+  application:
+    name: example-api
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  datasource:
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    url: "jdbc:log4jdbc:h2:mem:musinsa;MODE=MySQL;DATABASE_TO_LOWER=TRUE;"
+    username: musinsa
+    password: white12!
+    dbcp2:
+      initial-size: 1
+      max-total: 50
+      min-idle: 10
+      max-idle: 50
+      max-wait-millis: -1
+      time-between-eviction-runs-millis: 600000
+      min-evictable-idle-time-millis: 180000
+      test-on-borrow: true
+      test-while-idle: true
+      test-on-return: true
+
+springdoc:
+  api-docs:
+    version: openapi_3_0
+    path: /api-docs/json
+    groups:
+      enabled: true
+  swagger-ui:
+    path: swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  packages-to-scan: com.example.productsample
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  cache:
+    disabled: true
+
+logging:
+  level:
+    org:
+      springframework: debug
