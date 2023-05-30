@@ -12,6 +12,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import javax.sql.DataSource;
 
+/**
+ * mybatis 설정
+ */
 @Configuration
 @MapperScan(basePackages = "com.example.productsample.repository.mapper")
 public class MyBatisConfig {

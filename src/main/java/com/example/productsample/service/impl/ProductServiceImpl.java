@@ -21,6 +21,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductMapper productMapper;
 
+    // mapper 주입
     public ProductServiceImpl(ProductMapper productMapper) {
         this.productMapper = productMapper;
     }
@@ -65,6 +66,7 @@ public class ProductServiceImpl implements ProductService {
         return productResponse;
     }
 
+    //페이지설정
     private Integer getOffset(Integer page, Integer size) {
         Integer offset;
         if (page != null && size != null) {
@@ -78,13 +80,14 @@ public class ProductServiceImpl implements ProductService {
         return offset;
     }
 
+    //상품조회 정보 셋팅
     private ProductResponse buildProductInfo(long pid) {
         ProductResponse productResponse = new ProductResponse();
-        Product product = productMapper.selectProductByPId(pid);
+        Product product = productMapper.selectProductByPId(pid); // 상품 조회
         if(Objects.isNull(product)) {
             throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND);
         }
-        List<ProductOption> productOptionList = productMapper.selectProductOptionByPId(pid);
+        List<ProductOption> productOptionList = productMapper.selectProductOptionByPId(pid); //상품옵션조회
 
         productResponse.setPid(product.getPid());
         productResponse.setCid(product.getCid());
@@ -104,11 +107,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private void setProductInfo(Product product, ProductRequest request) throws Exception {
-        if (StringUtils.isEmpty(request.getProName())) {
+        if (StringUtils.isEmpty(request.getProName())) { // 제품이름이 비어있는경우 에러리턴
             throw new CustomException(ErrorCode.INVALID_PARAM, "상품명");
         }
 
-        if (StringUtils.isEmpty(request.getProDesc())) {
+        if (StringUtils.isEmpty(request.getProDesc())) {  // 제품 설명이 없는 경우 에러리턴
             throw new CustomException(ErrorCode.INVALID_PARAM, "상품 설명");
         }
 
@@ -123,7 +126,7 @@ public class ProductServiceImpl implements ProductService {
 
     private void setProductOptionInfo(long pid, List<ProductOption> productOptions, ProductRequest request) {
         request.getOpt().forEach(opt -> {
-            validationOption(opt);
+            validationOption(opt); //제품 옵션 validation check
             ProductOption productOption = new ProductOption();
             productOption.setPid(pid);
             productOption.setSize(opt.getSize());
@@ -134,15 +137,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private void validationOption(ProductOptionDto productOptionDto) {
-        if (StringUtils.isEmpty(productOptionDto.getSize())) {
+        if (StringUtils.isEmpty(productOptionDto.getSize())) {// 사이즈가 비어있는경우
             throw new CustomException(ErrorCode.PRODUCT_INVALID_SIZE);
         }
 
-        if (productOptionDto.getQty() < 1) {
+        if (productOptionDto.getQty() < 1) { // 재고가 1개보다 적은경우
             throw new CustomException(ErrorCode.PRODUCT_INVALID_QTY);
         }
 
-        if (productOptionDto.getPrice() < 100) {
+        if (productOptionDto.getPrice() < 100) { // 가격이 100원 이하인경우
             throw new CustomException(ErrorCode.PRODUCT_INVALID_PRICE);
         }
     }
