@@ -5,7 +5,11 @@
 - maven 3.8.1 - [maven download link](https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.8.1/)
 
 # Database information
-- H2 Database
+- mariadb
+- create schema : musinsa
+- username: root password: 1234
+- run resources/schema.sql
+- run resources/data.sql
 
 # Project Build
 - mvn clean

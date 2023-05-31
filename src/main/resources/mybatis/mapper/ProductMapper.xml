@@ -64,14 +64,14 @@
                 <when test="startCreated != null and endCreated != null ">
                     <![CDATA[
                     OR (
-                        FORMATDATETIME(created, 'yyyy-MM-dd') <= FORMATDATETIME(#{endCreated}, 'yyyy-MM-dd')
-                        AND FORMATDATETIME(created, 'yyyy-MM-dd') >= FORMATDATETIME(#{startCreated}, 'yyyy-MM-dd')
+                        DATE_FORMAT(created, '%Y-%m-%d') <= DATE_FORMAT(#{endCreated}, '%Y-%m-%d')
+                        AND DATE_FORMAT(created, '%Y-%m-%d') >= DATE_FORMAT(#{startCreated}, '%Y-%m-%d')
                     )
                     ]]>
                 </when>
                 <when test="startCreated != null">
                     <![CDATA[
-                    OR FORMATDATETIME(created, 'yyyy-MM-dd') >= FORMATDATETIME(#{startCreated}, 'yyyy-MM-dd')
+                    OR DATE_FORMAT(created, '%Y-%m-%d') >= DATE_FORMAT(#{startCreated}, '%Y-%m-%d')
                     ]]>
                 </when>
             </choose>
